@@ -1,111 +1,81 @@
 # Task 21: The Suspicious Message: Decide Before You Act
 
-## Scenario
-An employee of a fictional company, AcmeCorp (official domain: acmecorp.com), receives a message that threatens account suspension within 24 hours and asks them to confirm details through a link. The message has the company logo, but the sender domain is slightly different (for example acmec0rp.com, with a zero instead of the letter o).
+**Problem Statement:** An employee receives a message threatening account suspension and asking them to confirm details through a link. The message has a company logo but a slightly different sender domain. Decide how to verify it safely and what to do if credentials have already been submitted.
 
-This document gives a response procedure for two situations:
-- **Situation A:** the employee has not clicked or entered anything.
-- **Situation B:** the employee has already submitted credentials.
+---
 
-## Assumptions
-- The company uses single sign-on with MFA.
-- A security or IT contact exists, and there is a way to report phishing (button or mailbox).
-- The employee is not a security specialist.
-- The first priority is limiting harm quickly; the second is learning from the event.
+## 1. Sample Email (Simulated Phishing Message)
 
-## Evidence assessment
-| Clue | What it suggests | Weight |
-|---|---|---|
-| Sender domain differs slightly from the real one | Lookalike domain, a common phishing technique | Strong |
-| Link may point to a different domain than it displays | Deceptive link (must be checked without clicking) | Strong, needs verification |
-| Asks to confirm details through a link | Genuine IT teams rarely ask for credentials via emailed links | Strong |
-| Threat and 24-hour deadline | Urgency is used to stop careful thinking; real notices can also be urgent | Medium |
-| Generic greeting, unexpected message | Typical of mass phishing, weak on its own | Weak |
-| Company logo present | Easy to copy, gives no assurance | Negligible |
+```text
+From: IT Support Team <helpdesk@corp-security-verify.com>
+To: employee@company.com
+Subject: [URGENT] Corporate Account Suspension Notice!
 
-**Judgement:** two strong indicators (lookalike domain and a credential request through a link) plus urgency make phishing the working conclusion. The message should still be verified through an independent channel, and passing every check would not prove it is genuine.
+[Company Logo]
 
-## Situation A: nothing clicked or entered
+Dear Employee,
 
-### Decision procedure
-1. **Stop.** Do not click, reply, open attachments, call numbers in the message, or forward it to colleagues.
-2. **Inspect without interacting.**
-   - Read the full sender address, not just the display name.
-   - Check the Reply-To address.
-   - Look at SPF, DKIM and DMARC results in the message headers.
-   - Hover (desktop) or long-press (mobile) the link to read the real URL.
-3. **Question: do the sender and link domains exactly match the official domain?**
-   - **No:** treat as phishing. Go to step 6.
-   - **Yes or unsure:** go to step 4.
-4. **Verify independently.** Open the service by typing the official address or using a bookmark or app. Look for a matching notice. Or ask IT through a known contact. Never use anything from the message itself.
-5. **Question: does the independent channel confirm the message is genuine?**
-   - **Yes:** it is legitimate. Act only through the official site, never through the link.
-   - **No or unsure:** treat as phishing. Go to step 6.
-6. **Report.** Use the Report Phishing button or forward the message to the security mailbox.
-7. **Delete after reporting.**
-8. **Security team follow-up:** search all mailboxes for the same sender or subject, remove matches, block the domain and URL, check proxy logs for anyone who clicked, and warn staff.
+We noticed unusual login attempts on your work account. To keep your account safe 
+and stop it from being suspended within the next 2 hours, please verify your username 
+and password right now by clicking the link below:
 
-### Do and do not
-| Step | Do | Do not |
-|---|---|---|
-| Pause | Treat the message as unverified | Click, reply, or call numbers in it |
-| Inspect | Check the full address, headers and real URL | Trust the display name or the logo |
-| Verify | Use the official site or a known contact | Use any link or contact from the message |
-| Report | Report first, then delete | Delete without reporting |
+Link: [hSSp://verify.corp-security-verify.com/login](http://verify.corp-security-verify.com/login)
 
-## Situation B: credentials already submitted
+Thank you,
+IT Helpdesk Support
+```
 
-**Principle:** the attacker moves faster than we do, so contain first, investigate second. A fake page can also steal the session, so changing the password alone is not enough.
+---
 
-### Response procedure
-1. **Minutes 0 to 5: tell IT/Security immediately** by phone or chat. Do not wait to be sure, and do not delete the message (it is evidence).
-2. **Minutes 0 to 10: the employee secures the account.** From a clean device, open the official site by typing its address, change the password, and sign out of all sessions. Change any other account that uses the same password.
-3. **Security team contains the account:**
-   - force a password reset
-   - revoke sessions and refresh tokens
-   - review and reset MFA methods, removing unknown devices
-   - block the sender domain and URL
-   - remove the message from all mailboxes
-4. **Security team scopes the damage:** check sign-in logs (new IP, location or device), mailbox rules and forwarding, OAuth app consents, sent mail, file downloads and privileged actions.
-5. **Question: is there evidence of attacker activity, or was other data entered (ID, payment details, an MFA code)?**
-   - **Yes:** declare an incident. Isolate the device if malware is suspected, reset all affected accounts, escalate to data-protection or legal, and notify affected parties where required.
-   - **No:** monitor the account for 30 days, require re-verification, and record the outcome.
-6. **Post-incident:** preserve evidence, hold a blame-free debrief, send an awareness reminder, and improve detection.
+## 2. Red Flags in the Message (Why It Is Suspicious)
 
-**If the employee only clicked and entered nothing:** report it, scan the device, change the password as a precaution, and monitor.
+* **Fake Urgency:** The email says the account will be closed soon (within 2 hours). This is done to make the user panic and click without thinking.
+* **Wrong Sender Domain:** The sender email is slightly different from the real company domain (`@corp-security-verify.com` instead of `@company.com`).
+* **Copied Logo:** Anyone can copy and paste an official company logo into an email. A logo does not prove the email is real.
+* **Credential Link:** The message asks the user to click a link to type in their username and password. Real IT teams never ask users to do this via email.
 
-### Who does what
-| Role | Responsibilities |
-|---|---|
-| Employee | Report immediately, change the password from a clean device, sign out everywhere, say what was entered and on which device |
-| IT / Security | Force reset, revoke sessions, review MFA methods and mailbox rules, check logs, block domain, remove message, isolate device if needed |
-| Manager / HR / Legal | Support the employee without blame, involve data-protection or legal if personal data was exposed |
+---
 
-### Why these checks
-- **Session and token revocation** removes an attacker who is already logged in, which a password change alone does not.
-- **Mailbox rules and MFA methods** are common persistence tricks, because attackers hide replies or add their own device.
-- **Sent mail** shows whether the account is being used to phish colleagues.
-- **If an MFA code was typed in**, assume the attacker may have a live session until logs show otherwise.
+## 3. Situation A: What to Do If the User Has NOT Clicked Yet
 
-## Common mistakes avoided
-- Clicking "unsubscribe" or replying to check if it is real.
-- Calling the phone number in the message.
-- Changing the password on a possibly infected device, or changing it without ending active sessions.
-- Deleting the message before reporting it.
-- Waiting to see if anything happens after submitting credentials.
+If the employee only saw the email and did not click the link, follow these safe steps:
 
-## Prevention and measurement
-- DMARC at enforcement and external-sender banners.
-- Monitoring and blocking lookalike domains.
-- Phishing-resistant MFA such as passkeys.
-- A one-click Report Phishing button and a blame-free culture.
-- **Metrics:** time to report, report rate in phishing simulations, click rate, and time from report to message removal.
+1. **Do Not Click or Reply:** Do not click the link, do not download any files, and do not reply to the sender.
+2. **Check Link Safely:** Hover the mouse pointer over the link to see the real destination address without opening it.
+3. **Verify with IT Separately:** Open a new browser tab and log into the company portal directly. Call or message the IT Helpdesk using the official company phone list or chat (do not use the phone number from the email).
+4. **Report the Email:** Report the email so the security team can block the sender address and remove the email from other employees' inboxes.
 
-## Limitations
-This is a general procedure for a fictional organisation. Real steps depend on the mail platform, identity provider and legal duties such as breach-notification deadlines. The clue weights are judgement-based, not a formal scoring standard.
+---
 
-## References
-- NIST SP 800-61 Rev. 3, Incident Response Recommendations and Considerations for Cybersecurity Risk Management
-- NIST SP 800-63B, Digital Identity Guidelines
-- CISA, FBI, NSA and MS-ISAC, Phishing Guidance: Stopping the Attack Cycle at Phase One (2023)
-- MITRE ATT&CK T1566 (Phishing)
+## 4. Situation B: What to Do If Credentials Were Already Submitted
+
+If the user entered their username and password on the fake page, take immediate action in this order:
+
+| Priority / Time | Action Step | Who Does It | Reason / Goal |
+| :--- | :--- | :--- | :--- |
+| **Step 1**<br>(0 to 5 mins) | Reset Password and End Sessions | User / IT Admin | Change the password immediately and click "Sign out of all sessions" to kick the attacker out of the account. |
+| **Step 2**<br>(5 to 15 mins) | Check MFA Settings | IT Admin | Check if the attacker added their own phone number or Authenticator app to keep access. Remove any unknown device. |
+| **Step 3**<br>(15 to 30 mins) | Check Login Logs and Email Rules | Security Analyst | Look at recent logins for unknown IP addresses or countries. Check email settings to make sure the attacker did not set up rules to forward or hide emails. |
+| **Step 4**<br>(30 to 60 mins) | Scan Device and Block the Link | Security Analyst | Run an antivirus scan on the user's computer. Block the fake website and sender address on the company network so no one else falls for it. |
+
+---
+
+## 5. Decision Table (Action Path)
+
+Use this table to choose the correct steps based on whether the link was opened:
+
+**Trigger:** Suspicious Email Received (Company Logo + Lookalike Domain + Urgent Link)
+
+| Condition 1: User did NOT click the link | Condition 2: User clicked and submitted credentials |
+| :--- | :--- |
+| 1. Do not click the link or reply to the email.<br>2. Hover the mouse pointer over the link to verify the real URL.<br>3. Contact internal IT Helpdesk using official company chat or phone.<br>4. Report the suspicious email to the security team.<br>5. Security team blocks the sender domain on the gateway. | 1. Reset the account password immediately.<br>2. Terminate all active login sessions across all devices.<br>3. Check MFA configuration and remove any unrecognized device.<br>4. Audit sign-in logs for foreign IP addresses and unusual activity.<br>5. Inspect mailbox rules for hidden or automated forwarding rules.<br>6. Run an antivirus/EDR scan on the user's workstation.<br>7. Block the malicious domain and URL on firewall and email gateway. |
+
+---
+
+## 6. Final Verification Checklist Before Closing Ticket
+
+1. User password has been changed.
+2. All active login sessions have been terminated.
+3. MFA methods checked and confirmed clean.
+4. Email inbox rules checked (no suspicious forwarding rules).
+5. Malicious domain and sender blocked on the email filter and firewall.
