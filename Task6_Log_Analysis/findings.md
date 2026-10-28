@@ -37,6 +37,3 @@ ravi failed twice (10:20:02 and 10:20:15) and then succeeded at 10:20:41 from hi
 2. Block or rate-limit 198.51.100.23 and alert when one IP fails against several users within a minute.
 3. Enforce MFA, especially for remote logins.
 4. Alert on logins outside a user's usual hours or from a second IP within a short time.
-
-## Limitations
-The log is tiny and synthetic. It has no MFA, location or session data, so nothing above proves compromise; every item is a lead for investigation, not a conclusion.
